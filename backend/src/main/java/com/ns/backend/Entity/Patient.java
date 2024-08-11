@@ -122,7 +122,7 @@ public class Patient {
     }
 
     public enum Gender {
-        MALE, FEMALE
+        Male, Female
     }
 }
 

@@ -7,4 +7,8 @@ import java.util.List;
 public interface PatientService {
 
 
+    List<Patient> findAll();
+    void save(Patient patient);
+    void deleteById(int id);
+    Patient findById(int id);
 }
