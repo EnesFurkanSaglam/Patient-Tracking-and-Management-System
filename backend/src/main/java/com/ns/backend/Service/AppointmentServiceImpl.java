@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,9 @@ public class AppointmentServiceImpl implements AppointmentService {
     public List<Appointment> findAll() {
         return appointmentRepository.findAll();
     }
+
+
+
 
     @Override
     public void save(Integer patientId, Integer doctorId, Date appointmentDate, Time appointmentTime) {
@@ -93,5 +97,22 @@ public class AppointmentServiceImpl implements AppointmentService {
             throw new RuntimeException("Did not find appointment  id - " + id);
         }
         return appointment;
+    }
+
+    @Override
+    public List<Appointment> findByDoctorId(int doctorId) {
+
+        List<Appointment> appointmentList = appointmentRepository.findAll();
+        List<Appointment> appointments = new ArrayList<>();
+
+        for (Appointment appointment : appointmentList){
+            if (appointment.getDoctor().getDoctorId() == doctorId){
+                appointments.add(appointment);
+            }
+        }
+        if (!appointments.isEmpty()){
+            return appointments;
+        }
+        throw new RuntimeException("Did not find any Appointments ");
     }
 }

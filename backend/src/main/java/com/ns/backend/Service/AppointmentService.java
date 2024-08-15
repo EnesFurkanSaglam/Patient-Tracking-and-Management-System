@@ -12,4 +12,5 @@ public interface AppointmentService {
     void save(Integer patientId, Integer doctorId, Date appointmentDate, Time appointmentTime);
     void deleteById(int id);
     Appointment findById(int id);
+    List<Appointment> findByDoctorId(int doctorId);
 }

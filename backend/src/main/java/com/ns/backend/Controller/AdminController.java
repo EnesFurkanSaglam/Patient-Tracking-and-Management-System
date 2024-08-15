@@ -1,13 +1,8 @@
 package com.ns.backend.Controller;
 
 
-import ch.qos.logback.core.model.Model;
-import com.ns.backend.Entity.Appointment;
-import com.ns.backend.Entity.Doctor;
-import com.ns.backend.Entity.Patient;
-import com.ns.backend.Service.AppointmentService;
-import com.ns.backend.Service.DoctorService;
-import com.ns.backend.Service.PatientService;
+import com.ns.backend.Entity.*;
+import com.ns.backend.Service.*;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -29,17 +24,39 @@ public class AdminController {
     private PatientService patientService;
     private DoctorService doctorService;
     private AppointmentService appointmentService;
+    private MedicalReportService medicalReportService;
+    private LabResultService labResultService;
+    private AdminService adminService;
 
-    public AdminController(PatientService patientService, DoctorService doctorService,AppointmentService appointmentService) {
+    public AdminController(PatientService patientService, DoctorService doctorService, AppointmentService appointmentService, MedicalReportService medicalReportService, LabResultService labResultService, AdminService adminService) {
         this.patientService = patientService;
         this.doctorService = doctorService;
         this.appointmentService = appointmentService;
+        this.medicalReportService = medicalReportService;
+        this.labResultService = labResultService;
+        this.adminService = adminService;
+    }
+
+
+
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestParam String name, @RequestParam int id) {
+
+        Admin admin = adminService.findByName(name);
+
+        if (admin.getAdminId() == id){
+            return ResponseEntity.ok("Admin found ");
+        }
+        else {
+            return  ResponseEntity.ok("Admin not found");
+        }
+
     }
 
 
     @GetMapping("/list-patient")
     @ResponseBody
-    public List<Patient> listPatients(){
+    public List<Patient> listPatients() {
         return patientService.findAll();
     }
 
@@ -59,15 +76,14 @@ public class AdminController {
 //    }
 
 
-
     @GetMapping("/list-doctor")
     @ResponseBody
-    public List<Doctor> listDoctor(){
+    public List<Doctor> listDoctor() {
         return doctorService.findAll();
     }
 
     @PostMapping("/save-doctor")
-    public ResponseEntity<String> saveDoctor(@RequestBody Doctor doctor){
+    public ResponseEntity<String> saveDoctor(@RequestBody Doctor doctor) {
         doctorService.save(doctor);
         return ResponseEntity.ok("Doctor saved succesfully");
     }
@@ -80,14 +96,11 @@ public class AdminController {
 //    }
 
 
-
     @GetMapping("/list-appointment")
     @ResponseBody
-    public List<Appointment> listAppointment(){
+    public List<Appointment> listAppointment() {
         return appointmentService.findAll();
     }
-
-
 
 
     @PostMapping("/save-appointment")
@@ -113,6 +126,61 @@ public class AdminController {
 //        appointmentService.deleteById(id);
 //        return ResponseEntity.ok("Appointment deleted successfully");
 //    }
+
+
+    @GetMapping("/list-medical-report")
+    @ResponseBody
+    public List<MedicalReport> listMedicalReport(@RequestParam int patientId) {
+        return medicalReportService.getByPatientId(patientId);
+    }
+
+
+    @PostMapping("/save-medical-report")
+    public ResponseEntity<String> saveMedicalReport(
+            @RequestParam Integer patientId,
+            @RequestParam String reportContent,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate reportDate) {
+
+        LocalDateTime localDateTime = reportDate.atStartOfDay();
+        Date sqlDate = Date.from(localDateTime.atZone(ZoneId.systemDefault()).toInstant());
+
+        medicalReportService.save(sqlDate, reportContent, patientId);
+        return ResponseEntity.ok("Medical Report saved succesfully");
+    }
+
+//    @PostMapping("/delete-medical-report")
+//    public ResponseEntity<String> deleteMedicalReport() {
+//
+//        return ResponseEntity.ok("Medical Report deleted successfully");
+//    }
+
+    @GetMapping("/list-lab-result")
+    @ResponseBody
+    public List<LabResult> listLabResult(@RequestParam int medicalReportId) {
+
+        return labResultService.getByMedicalReportId(medicalReportId);
+    }
+
+    @PostMapping("/save-lab-result")
+    public ResponseEntity<String> saveLabResult(
+            @RequestParam Integer medicalReportId,
+            @RequestParam String url) {
+
+        labResultService.save(medicalReportId,url);
+
+        return ResponseEntity.ok("Lab Result saved succesfully");
+    }
+
+
+//    @PostMapping("/delete-lab-result")
+//    public ResponseEntity<String> deleteLabResult() {
+//        return ResponseEntity.ok("Lab Result deleted successfully");
+//    }
+
+
+
+
+
 
 
 
